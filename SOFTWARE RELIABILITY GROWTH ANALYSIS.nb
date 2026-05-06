@@ -1,6 +1,6 @@
 ClearAll["Global`*"];
 
-token = "...";
+token = "";
 owner = "apache";
 repo = "dubbo";
 
@@ -31,22 +31,20 @@ data = fetchDataBugs[];
 aStart = data[[-1, 2]];
 len = Length[data];
 
-
-goel = Quiet[
-   NonlinearModelFit[
-    data, {a (1 - Exp[-b*t]), a > 0, 
-     0 < b < 1}, {{a, aStart}, {b, 0.02}}, t]];
+goel = NonlinearModelFit[
+   data, {a (1 - Exp[-b*t]), a > 0, 
+    0 < b < 1}, {{a, aStart}, {b, 0.02}}, t];
 
 delayedSshaped = 
-  Quiet[NonlinearModelFit[
-    data, {a (1 - (1 + b*t) Exp[-b*t]), a > 0, 
-     0 < b < 1}, {{a, aStart}, {b, 0.05}}, t]];
+  NonlinearModelFit[
+   data, {a (1 - (1 + b*t) Exp[-b*t]), a > 0, 
+    0 < b < 1}, {{a, aStart}, {b, 0.05}}, t];
 
 inflectionSshaped = 
-  Quiet[NonlinearModelFit[
-    data, {(a (1 - Exp[-b*t]))/(1 + \[Beta]*Exp[-b*t]), a > 0, 
-     0 < b < 1, \[Beta] > 0}, {{a, aStart}, {b, 0.05}, {\[Beta], 1.1}},
-     t, Method -> "NMinimize"]];
+  NonlinearModelFit[
+   data, {(a (1 - Exp[-b*t]))/(1 + \[Beta]*Exp[-b*t]), a > 0, 
+    0 < b < 1, \[Beta] > 0}, {{a, aStart}, {b, 0.05}, {\[Beta], 1.1}},
+    t, Method -> "NMinimize"];
 
 musa = Quiet[
    NonlinearModelFit[
@@ -65,8 +63,8 @@ DynamicModule[{availableModels = {"Goel-Okumoto", "Yamada S-Shaped",
   modelColors = <|"Goel-Okumoto" -> ColorData[97, 1], 
     "Yamada S-Shaped" -> ColorData[97, 2], 
     "Inflection S-Shaped" -> ColorData[97, 3], 
-    "Gompertz" -> ColorData[97, 4], "Musa-Okumoto" -> ColorData[97, 5]|>},
-  Framed[Column[{Framed[
+    "Musa-Okumoto" -> ColorData[97, 5]|>}, 
+ Framed[Column[{Framed[
      Style["SOFTWARE RELIABILITY GROWTH ANALYSIS: APACHE DUBBO", 22, 
       Bold, Darker[Gray, 0.7]], Background -> pastelPurple, 
      FrameStyle -> GrayLevel[0.5], RoundingRadius -> 8, 
@@ -137,33 +135,28 @@ DynamicModule[{availableModels = {"Goel-Okumoto", "Yamada S-Shaped",
            Alignment -> Center], Spacer[10], 
           Dynamic[Grid[
             Join[{{Style["Model", Bold, pastelPurple], 
-               Style["R²", Bold, pastelPurple], 
-               Style["RMSE", Bold, pastelPurple], 
-               Style["MAE", Bold, pastelPurple], 
                Style["AIC", Bold, pastelPurple], 
                Style["AICc", Bold, pastelPurple], 
-               Style["BIC", Bold, pastelPurple]}}, 
+               Style["BIC", Bold, pastelPurple], 
+               Style["RSquared", Bold, pastelPurple], 
+               Style["Adj. RSquared", Bold, pastelPurple]}}, 
              Table[{Style[k, 10, White], 
-               Style[NumberForm[Quiet[models[k]["RSquared"]], {4, 4}],
-                 11, "Courier", White], 
-               Style[NumberForm[
-                 Sqrt[Mean[Quiet[models[k]["FitResiduals"]]^2]], {6, 
-                  2}], 11, "Courier", White], 
-               Style[NumberForm[
-                 Mean[Abs[Quiet[models[k]["FitResiduals"]]]], {6, 2}],
-                 11, "Courier", White], 
                Style[NumberForm[Quiet[models[k]["AIC"]], {6, 2}], 11, 
                 "Courier", White], 
                Style[NumberForm[Quiet[models[k]["AICc"]], {6, 2}], 11,
                  "Courier", White], 
                Style[NumberForm[Quiet[models[k]["BIC"]], {6, 2}], 11, 
+                "Courier", White], 
+               Style[NumberForm[Quiet[models[k]["RSquared"]], {4, 6}],
+                 11, "Courier", White], 
+               Style[NumberForm[
+                 Quiet[models[k]["AdjustedRSquared"]], {4, 6}], 11, 
                 "Courier", White]}, {k, selected}]], 
             Alignment -> Center, Frame -> All, 
             FrameStyle -> GrayLevel[0.4], Spacings -> {1.5, 2.0}, 
             Background -> {None, {None, {GrayLevel[0.15], 
-                GrayLevel[0.22]}}}, 
-            ItemSize -> {{11, 5, 5, 5, 5, 5, 5}}]]}, 
-         Alignment -> Center], RoundingRadius -> 10, 
+                GrayLevel[0.22]}}}, ItemSize -> {{11, 6, 6, 6, 8, 8}}]]},
+          Alignment -> Center], RoundingRadius -> 10, 
         Background -> GrayLevel[0.2], FrameStyle -> GrayLevel[0.6], 
         ImageSize -> {Automatic, 500}, FrameMargins -> 20]}}, 
      Spacings -> {0, 0}, Alignment -> Center]}, Alignment -> Center], 
