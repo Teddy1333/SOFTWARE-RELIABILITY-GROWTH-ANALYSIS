@@ -113,10 +113,10 @@ DynamicModule[{availableModels = {"Goel-Okumoto", "Yamada S-Shaped",
        Framed[Row[{Dynamic[
            Plot[Evaluate[Table[models[k][t], {k, selected}]], {t, 1, 
              len}, PlotStyle -> 
-             Table[Thickness[0.007], {Length[selected]}], 
-            PlotTheme -> "Scientific", ImageSize -> {440, 420}, 
-            AspectRatio -> 0.7, GridLines -> Automatic, 
-            GridLinesStyle -> GrayLevel[0.4], 
+             Table[Directive[modelColors[k], Thickness[0.007]], {k, 
+               selected}], PlotTheme -> "Scientific", 
+            ImageSize -> {440, 420}, AspectRatio -> 0.7, 
+            GridLines -> Automatic, GridLinesStyle -> GrayLevel[0.4], 
             Epilog -> 
              If[showData, {Red, PointSize[0.015], Point[data]}, {}], 
             FrameLabel -> {Style["Time (Months)", White, 12], 
