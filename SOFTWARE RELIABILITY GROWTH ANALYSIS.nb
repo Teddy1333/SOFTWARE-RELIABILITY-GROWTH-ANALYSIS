@@ -4,7 +4,7 @@ token = "";
 owner = "apache";
 repo = "dubbo";
 
-fetchDataBugs[] := 
+fetchDataBugs[] :=
  Module[{allIssues = {}, page = 1, res, raw, bugDates, counts, 
    cumulative}, Print["Fetching GitHub data..."];
   While[page <= 15, 
@@ -51,20 +51,27 @@ musa = Quiet[
     data, {(1/th) Log[1 + l0 th t], l0 > 0, 
      th > 0}, {{l0, 10}, {th, 0.01}}, t, Method -> "NMinimize"]];
 
+hdgo = Quiet[
+   NonlinearModelFit[
+    data, {a (1 - Exp[-b*t^c]), a > 0, b > 0, 
+     c > 0}, {{a, aStart}, {b, 0.01}, {c, 1.1}}, t, 
+    Method -> "NMinimize"]];
+
 models = <|"Goel-Okumoto" -> goel, 
    "Yamada S-Shaped" -> delayedSshaped, 
-   "Inflection S-Shaped" -> inflectionSshaped, "Musa-Okumoto" -> musa|>;
+   "Inflection S-Shaped" -> inflectionSshaped, "Musa-Okumoto" -> musa, 
+   "HD/G-O" -> hdgo|>;
 
 DynamicModule[{availableModels = {"Goel-Okumoto", "Yamada S-Shaped", 
-    "Inflection S-Shaped", "Musa-Okumoto"}, 
+    "Inflection S-Shaped", "Musa-Okumoto", "HD/G-O"}, 
   selected = {"Goel-Okumoto", "Yamada S-Shaped", "Inflection S-Shaped",
-     "Musa-Okumoto"}, showData = True, 
+     "Musa-Okumoto", "HD/G-O"}, showData = True, 
   pastelPurple = RGBColor[0.85, 0.8, 0.95], 
   modelColors = <|"Goel-Okumoto" -> ColorData[97, 1], 
     "Yamada S-Shaped" -> ColorData[97, 2], 
     "Inflection S-Shaped" -> ColorData[97, 3], 
-    "Musa-Okumoto" -> ColorData[97, 5]|>}, 
- Framed[Column[{Framed[
+    "Musa-Okumoto" -> ColorData[97, 4], "HD/G-O" -> ColorData[97, 5]|>},
+  Framed[Column[{Framed[
      Style["SOFTWARE RELIABILITY GROWTH ANALYSIS: APACHE DUBBO", 22, 
       Bold, Darker[Gray, 0.7]], Background -> pastelPurple, 
      FrameStyle -> GrayLevel[0.5], RoundingRadius -> 8, 
@@ -109,8 +116,10 @@ DynamicModule[{availableModels = {"Goel-Okumoto", "Yamada S-Shaped",
                Spacer[8], Style["Show Raw Data", 11, White, Bold]}]}],
            Spacer[120]}, Alignment -> Left], RoundingRadius -> 10, 
         Background -> GrayLevel[0.2], FrameStyle -> GrayLevel[0.6], 
-        ImageSize -> {220, 500}], Spacer[10], 
-       Framed[Row[{Dynamic[
+        ImageSize -> {220, 500}], Spacer[10],
+       
+       Framed[
+        Row[{Dynamic[
            Plot[Evaluate[Table[models[k][t], {k, selected}]], {t, 1, 
              len}, PlotStyle -> 
              Table[Directive[modelColors[k], Thickness[0.007]], {k, 
@@ -131,7 +140,9 @@ DynamicModule[{availableModels = {"Goel-Okumoto", "Yamada S-Shaped",
          Alignment -> Center], RoundingRadius -> 10, 
         Background -> GrayLevel[0.2], FrameStyle -> GrayLevel[0.5], 
         ImageSize -> {Automatic, 500}, FrameMargins -> 15], Spacer[10],
-        Framed[Column[{Item[Style["METRICS", 16, Bold, pastelPurple], 
+       
+       Framed[
+        Column[{Item[Style["METRICS", 16, Bold, pastelPurple], 
            Alignment -> Center], Spacer[10], 
           Dynamic[Grid[
             Join[{{Style["Model", Bold, pastelPurple], 
